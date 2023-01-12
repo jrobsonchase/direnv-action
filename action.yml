@@ -5,10 +5,7 @@ outputs: {}
 runs:
   using: "composite"
   steps:
-    - run: |
-       curl --retry 5 --retry-all-errors -sfL https://direnv.net/install.sh \
-         | sed 's/curl/curl --retry 5 --retry-all-errors --header "authorization: Bearer ${{ github.token }}"/g' \
-         | bash
+    - run: GITHUB_TOKEN=${{ github.token }} bash ${{ github.action_path }}/install.sh
       shell: bash
     - run: direnv allow
       shell: bash
