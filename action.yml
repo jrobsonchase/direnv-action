@@ -1,0 +1,13 @@
+name: 'Direnv'
+description: 'Install, allow, and load direnv'
+inputs: {}
+outputs: {}
+runs:
+  using: "composite"
+  steps:
+    - run: |
+      curl -v --retry 5 --retry-all-errors -sfL https://direnv.net/install.sh \
+        | sed 's/curl/curl -v --retry 5 --retry-all-errors --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"/g' \
+        | bash
+    - run: direnv allow
+    - run: direnv export gha >> "$GITHUB_ENV"

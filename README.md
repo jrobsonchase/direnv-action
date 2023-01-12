@@ -1,0 +1,1 @@
+A simpler direnv action.
