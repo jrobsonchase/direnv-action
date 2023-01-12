@@ -1,11 +1,16 @@
 name: 'Direnv'
 description: 'Install, allow, and load direnv'
-inputs: {}
+inputs:
+  github-token:
+    description: 'The secrets.GITHUB_TOKEN for this workflow'
+    required: true
+    default: ''
 outputs: {}
 runs:
   using: "composite"
   steps:
     - run: |
        curl -v --retry 5 --retry-all-errors -sfL https://direnv.net/install.sh \
-         | sed 's/curl/curl -v --retry 5 --retry-all-errors --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"/g' \
+         | sed 's/curl/curl -v --retry 5 --retry-all-errors --header "authorization: Bearer ${{ inputs.github-token }}"/g' \
          | bash
+      shell: bash
