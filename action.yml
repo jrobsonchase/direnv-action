@@ -21,6 +21,7 @@ runs:
         key: nix
         path: |
           /nix/store
+          /nix/var/nix/db
     - name: Unwrap tar
       shell: bash
       run: |
