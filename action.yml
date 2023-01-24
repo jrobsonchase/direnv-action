@@ -6,29 +6,22 @@ runs:
   using: "composite"
   steps:
     - uses: cachix/install-nix-action@v18
-    - name: Wrap tar
-      shell: bash
-      run: |
-        tmpdir=$(mktemp -d)
-        tarpath=$(command -v tar)
-        echo -e "#!/usr/bin/env bash\nsudo $tarpath \$@" > $tmpdir/tar
-        chmod +x $tmpdir/tar
-        echo OLDPATH=$PATH >> "$GITHUB_ENV"
-        echo PATH=$tmpdir:$PATH >> "$GITHUB_ENV"
-    - name: Cache nix store
+    - name: Cache direnv
+      id: cache-direnv
       uses: actions/cache@v3
       with:
-        key: nix
-        path: |
-          /nix/store
-          /nix/var/nix/db
-    - name: Unwrap tar
-      shell: bash
-      run: |
-        echo PATH=$OLDPATH >> "$GITHUB_ENV"
+        key: direnv
+        path: /tmp/direnv-out
+    - shell: bash
+      name: Import direnv cache
+      if: steps.cache-direnv.outputs.cache-hit == 'true'
+      run: nix-store --import < /tmp/direnv-out
     - run: GITHUB_TOKEN=${{ github.token }} bash ${{ github.action_path }}/install.sh
       shell: bash
     - run: direnv allow
       shell: bash
     - run: direnv export gha >> "$GITHUB_ENV"
       shell: bash
+    - shell: bash
+      name: Export direnv
+      run: nix-store --export $(nix-store -qR $(find .direnv -maxdepth 1 -type l)) > /tmp/direnv-out
