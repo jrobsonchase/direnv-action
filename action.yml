@@ -1,6 +1,10 @@
 name: 'Direnv'
 description: 'Install, allow, and load direnv'
-inputs: {}
+inputs:
+  default-branch:
+    required: false
+    description: The default branch to restore the direnv cache from
+    default: main
 outputs: {}
 runs:
   using: "composite"
@@ -10,7 +14,10 @@ runs:
       id: cache-direnv
       uses: actions/cache@v3
       with:
-        key: direnv
+        key: direnv-${{ runner.os }}-${{ github.ref_name }}
+        restore-keys: |
+          direnv-${{ runner.os }}-${{ inputs.default-branch }}
+          direnv-${{ runner.os }}-
         path: /tmp/direnv-out
     - shell: bash
       name: Import direnv cache
