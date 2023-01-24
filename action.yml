@@ -5,6 +5,7 @@ outputs: {}
 runs:
   using: "composite"
   steps:
+    - uses: cachix/install-nix-action@v18
     - run: GITHUB_TOKEN=${{ github.token }} bash ${{ github.action_path }}/install.sh
       shell: bash
     - run: direnv allow
