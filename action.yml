@@ -1,10 +1,6 @@
-name: 'Direnv'
-description: 'Install, allow, and load direnv'
-inputs:
-  default-branch:
-    required: false
-    description: The default branch to restore the direnv cache from
-    default: main
+name: 'direnv-flakes'
+description: 'Install, allow, and load direnv using nix flakes'
+inputs: {}
 outputs: {}
 runs:
   using: "composite"
@@ -14,9 +10,8 @@ runs:
       id: cache-direnv
       uses: actions/cache@v3
       with:
-        key: direnv-${{ runner.os }}-${{ github.ref_name }}
+        key: direnv-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/flake.nix', '.envrc') }}
         restore-keys: |
-          direnv-${{ runner.os }}-${{ inputs.default-branch }}
           direnv-${{ runner.os }}-
         path: /tmp/direnv-out
     - shell: bash
