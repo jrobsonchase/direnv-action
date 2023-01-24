@@ -23,6 +23,7 @@ runs:
       name: Import direnv cache
       run: |
         if [ -f /tmp/direnv-out ]; then
+          echo "cache hit, importing direnv store paths"
           nix-store --import < /tmp/direnv-out
         else
           echo "cache miss, skipping import"
@@ -35,4 +36,4 @@ runs:
       shell: bash
     - shell: bash
       name: Export direnv
-      run: nix-store --export $(nix-store -qR $(find .direnv -maxdepth 1 -type l)) > /tmp/direnv-out
+      run: nix-store --export $(nix-store -qR $(find .direnv -type l)) > /tmp/direnv-out
