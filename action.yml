@@ -21,8 +21,12 @@ runs:
         path: /tmp/direnv-out
     - shell: bash
       name: Import direnv cache
-      if: steps.cache-direnv.outputs.cache-hit == 'true'
-      run: nix-store --import < /tmp/direnv-out
+      run: |
+        if [ -f /tmp/direnv-out ]; then
+          nix-store --import < /tmp/direnv-out
+        else
+          echo "cache miss, skipping import"
+        fi
     - run: GITHUB_TOKEN=${{ github.token }} bash ${{ github.action_path }}/install.sh
       shell: bash
     - run: direnv allow
