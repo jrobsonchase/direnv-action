@@ -6,6 +6,25 @@ runs:
   using: "composite"
   steps:
     - uses: cachix/install-nix-action@v18
+    - name: Wrap tar
+      shell: bash
+      run: |
+        tmpdir=$(mktemp -d)
+        tarpath=$(command -v tar)
+        echo -e "#!/usr/bin/env bash\nsudo $tarpath \$@" > $tmpdir/tar
+        chmod +x $tmpdir/tar
+        echo OLDPATH=$PATH >> "$GITHUB_ENV"
+        echo PATH=$tmpdir:$PATH >> "$GITHUB_ENV"
+    - name: Cache nix store
+      uses: actions/cache@v3
+      with:
+        key: nix
+        path: |
+          /nix/store
+    - name: Unwrap tar
+      shell: bash
+      run: |
+        echo PATH=$OLDPATH >> "$GITHUB_ENV"
     - run: GITHUB_TOKEN=${{ github.token }} bash ${{ github.action_path }}/install.sh
       shell: bash
     - run: direnv allow
