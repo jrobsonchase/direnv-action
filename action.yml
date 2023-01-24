@@ -10,8 +10,11 @@ runs:
       id: cache-direnv
       uses: actions/cache@v3
       with:
-        key: direnv-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/flake.nix', '.envrc') }}
+        key: direnv-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/flake.nix', '.envrc') }}-${{ github.ref_name }}
         restore-keys: |
+          direnv-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/flake.nix', '.envrc') }}-main
+          direnv-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/flake.nix', '.envrc') }}-master
+          direnv-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/flake.nix', '.envrc') }}-
           direnv-${{ runner.os }}-
         path: /tmp/direnv-out
     - shell: bash
