@@ -1,10 +1,6 @@
-name: 'Direnv'
-description: 'Install, allow, and load direnv'
-inputs:
-  default-branch:
-    required: false
-    description: The default branch to restore the direnv cache from
-    default: main
+name: 'direnv-flakes'
+description: 'Install, allow, and load direnv using nix flakes'
+inputs: {}
 outputs: {}
 runs:
   using: "composite"
@@ -14,15 +10,22 @@ runs:
       id: cache-direnv
       uses: actions/cache@v3
       with:
-        key: direnv-${{ runner.os }}-${{ github.ref_name }}
+        key: direnv-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/flake.nix', '.envrc') }}-${{ github.ref_name }}
         restore-keys: |
-          direnv-${{ runner.os }}-${{ inputs.default-branch }}
+          direnv-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/flake.nix', '.envrc') }}-main
+          direnv-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/flake.nix', '.envrc') }}-master
+          direnv-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/flake.nix', '.envrc') }}-
           direnv-${{ runner.os }}-
         path: /tmp/direnv-out
     - shell: bash
       name: Import direnv cache
-      if: steps.cache-direnv.outputs.cache-hit == 'true'
-      run: nix-store --import < /tmp/direnv-out
+      run: |
+        if [ -f /tmp/direnv-out ]; then
+          echo "cache hit, importing direnv store paths"
+          nix-store --import < /tmp/direnv-out
+        else
+          echo "cache miss, skipping import"
+        fi
     - run: GITHUB_TOKEN=${{ github.token }} bash ${{ github.action_path }}/install.sh
       shell: bash
     - run: direnv allow
@@ -31,4 +34,4 @@ runs:
       shell: bash
     - shell: bash
       name: Export direnv
-      run: nix-store --export $(nix-store -qR $(find .direnv -maxdepth 1 -type l)) > /tmp/direnv-out
+      run: nix-store --export $(nix-store -qR $(find .direnv -type l)) > /tmp/direnv-out
