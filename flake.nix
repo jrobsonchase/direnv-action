@@ -17,6 +17,8 @@
       {
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
+            rustPlatform.rust.rustc
+            rustPlatform.rust.cargo
             nodejs
           ];
         };
